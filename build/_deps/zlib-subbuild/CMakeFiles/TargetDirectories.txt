@@ -1,3 +1,0 @@
-/Users/krishnachamarthy/Documents/Interview/interview_template/build/_deps/zlib-subbuild/CMakeFiles/zlib-populate.dir
-/Users/krishnachamarthy/Documents/Interview/interview_template/build/_deps/zlib-subbuild/CMakeFiles/edit_cache.dir
-/Users/krishnachamarthy/Documents/Interview/interview_template/build/_deps/zlib-subbuild/CMakeFiles/rebuild_cache.dir
