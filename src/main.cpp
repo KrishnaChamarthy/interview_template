@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <unordered_map>
 #include <vector>
 #include <stdexcept>
 #include <cpr/cpr.h>
@@ -21,14 +20,8 @@ Entity parse_entity(const json& j, const vector<string>& required_fields = {"id"
         }
     }
 
-    bool active = false;
-    if (j.contains("active") && !j.at("active").is_null()) {
-        active = j.at("active").get<bool>();
-    }
-
     return Entity{
         j.at("id").get<string>(),
-        active
     };
 }
 
@@ -59,9 +52,12 @@ void process_api(const string& base_url) {
 
             for (const auto& item : payload["data"]) {
                 try {
-                    Entity e = parse_entity(item);
-                    cout << "Entity: " << e.id
-                         << ", active: " << (e.active ? "true" : "false") << '\n';
+                    if (!item.is_object()) {
+                        throw invalid_argument("data item is not an object");
+                    }
+
+                    Entity e = parse_entity(item, {"id"});
+                    cout << "Entity: id=" << e.id << "\n";
                 } catch (const exception& e) {
                     cerr << "[Row Skipped]: " << e.what() << '\n';
                     continue;
@@ -82,11 +78,27 @@ void process_api(const string& base_url) {
     }
 }
 
+void post_entity(const string& base_url, const json& body) {
+    cpr::Response r = cpr::Post(
+        cpr::Url{base_url + "/create"},
+        cpr::Header{{"Content-Type", "application/json"}},
+        cpr::Body{body.dump()}
+    );
+
+    cout << "[POST] status=" << r.status_code << " body=" << r.text << '\n';
+}
+
 int main() {
     string api_url = "http://localhost:8080";
     cout << "Starting application...\n";
 
     process_api(api_url);
+
+    json payload = {
+        {"id", "entity_123"},
+        {"active", true}
+    };
+    post_entity(api_url, payload);
 
     cout << "Processing complete.\n";
     return 0;
